@@ -51,7 +51,7 @@ pub struct OperationError {
 
 #[derive(Debug, Deserialize)]
 pub struct ErrorItem {
-    pub code:    String,
+    pub _code:    String,
     pub message: String,
 }
 
