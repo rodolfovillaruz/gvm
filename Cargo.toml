@@ -13,6 +13,10 @@ exclude = [
     ".dump/*"
 ]
 
+[[bin]]
+name = "gvm"
+path = "src/main.rs"
+
 [dependencies]
 tokio       = { version = "1", features = ["full"] }
 clap        = { version = "4", features = ["derive", "env"] }
