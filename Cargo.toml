@@ -17,3 +17,5 @@ serde       = { version = "1",    features = ["derive"] }
 serde_json  = "1"
 gcp_auth    = "0.12"
 colored     = "3"
+google-cloud-auth = "1.9.0"
+google-cloud-compute-v1 = "2.4.0"
