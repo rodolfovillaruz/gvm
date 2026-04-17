@@ -165,7 +165,10 @@ async fn find_instance(
                 .strip_prefix("zones/")
                 .unwrap_or(&zone_key)
                 .to_string();
-            let status = instance.status.as_deref().unwrap_or("").to_string();
+            let status = instance
+                .status
+                .map(|s| format!("{s:?}").to_uppercase())
+                .unwrap_or_default();
 
             // Prefer external (NAT) IP, fall back to internal IP.
             let mut ip: Option<String> = None;
@@ -229,7 +232,10 @@ async fn wait_for_ssh(
             .send()
             .await?;
 
-        let status = instance.status.as_deref().unwrap_or("").to_string();
+        let status = instance
+            .status
+            .map(|s| format!("{s:?}").to_uppercase())
+            .unwrap_or_default();
         if status != last_status {
             eprintln!("  instance status: {status}");
             last_status = status.clone();
