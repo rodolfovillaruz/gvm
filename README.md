@@ -16,6 +16,26 @@ Any extra arguments after the subcommand are passed through to `ssh`, so you can
 
 You need a recent Rust toolchain (stable) and Cargo.
 
+### From crates.io (recommended)
+
+Install the latest published release directly with Cargo:
+
+```sh
+cargo install gce-vm
+```
+
+This will download, build, and place the `gvm` binary in Cargo's bin directory (usually `~/.cargo/bin`). Make sure that directory is on your `PATH`.
+
+To upgrade to a newer version later:
+
+```sh
+cargo install gce-vm --force
+```
+
+### From source
+
+Clone the repository and build it yourself:
+
 ```sh
 git clone <this-repo>
 cd gvm
