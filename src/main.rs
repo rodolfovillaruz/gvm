@@ -1,5 +1,7 @@
 use google_cloud_compute_v1::client::Instances;
 use google_cloud_gax::paginator::ItemPaginator;
+use std::env::{set_var, var_os};
+use std::path::PathBuf;
 use std::process::Command;
 use std::time::{Duration, Instant};
 
@@ -35,6 +37,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
              to create application default credentials."
         );
         return Err("missing credentials".into());
+    } else {
+        #[cfg(windows)]
+        {
+            let cred_path: Option<PathBuf> = var_os("LOCALAPPDATA").map(|app_data| {
+                PathBuf::from(app_data)
+                    .join("gcloud")
+                    .join("application_default_credentials.json")
+            });
+
+            if let Some(path) = cred_path {
+                set_var("GOOGLE_APPLICATION_CREDENTIALS", path.display().to_string());
+            }
+        }
     }
 
     let client = Instances::builder().build().await?;
@@ -291,7 +306,6 @@ async fn wait_for_ssh(
 }
 
 fn credentials_available() -> bool {
-    #[cfg(not(windows))]
     if let Ok(path) = std::env::var("GOOGLE_APPLICATION_CREDENTIALS") {
         let path = std::path::Path::new(&path);
         if path.is_file() {
