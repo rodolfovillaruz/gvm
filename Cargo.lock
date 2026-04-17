@@ -794,6 +794,7 @@ dependencies = [
  "gcp_auth",
  "google-cloud-auth",
  "google-cloud-compute-v1",
+ "google-cloud-gax",
  "reqwest",
  "serde",
  "serde_json",
