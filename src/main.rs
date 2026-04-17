@@ -8,7 +8,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if args.len() < 2 {
         eprintln!(
             "Usage: {} [user@]<instance-name> [ssh-args...]",
-            args.first().map(String::as_str).unwrap_or("gcp-ssh")
+            args.first().map(String::as_str).unwrap_or("gvm")
         );
         return Err("missing instance name".into());
     }
