@@ -1,5 +1,5 @@
 [package]
-name = "gvm"
+name = "gce-vm"
 version = "1.0.0"
 edition = "2021"
 authors = ["Rodolfo Villaruz <rodolfo@yes.ph>"]

@@ -558,6 +558,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "gce-vm"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "colored",
+ "gcp_auth",
+ "google-cloud-auth",
+ "google-cloud-compute-v1",
+ "google-cloud-gax",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "gcp_auth"
 version = "0.12.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -782,24 +800,6 @@ dependencies = [
  "thiserror 2.0.18",
  "time",
  "url",
-]
-
-[[package]]
-name = "gvm"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "clap",
- "colored",
- "gcp_auth",
- "google-cloud-auth",
- "google-cloud-compute-v1",
- "google-cloud-gax",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
 ]
 
 [[package]]
