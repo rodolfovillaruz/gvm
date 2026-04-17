@@ -1,7 +1,6 @@
 use google_cloud_compute_v1::client::Instances;
 use google_cloud_gax::paginator::ItemPaginator;
-use std::env::{set_var, var_os};
-use std::path::PathBuf;
+use std::env::var_os;
 use std::process::Command;
 use std::time::{Duration, Instant};
 
@@ -40,6 +39,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         #[cfg(windows)]
         {
+            use std::env::set_var;
+            use std::path::PathBuf;
             let cred_path: Option<PathBuf> = var_os("LOCALAPPDATA").map(|app_data| {
                 PathBuf::from(app_data)
                     .join("gcloud")
@@ -330,7 +331,7 @@ fn credentials_available() -> bool {
 fn application_default_credentials_path() -> Option<std::path::PathBuf> {
     #[cfg(windows)]
     {
-        let appdata = std::env::var_os("LOCALAPPDATA")?;
+        let appdata = var_os("LOCALAPPDATA")?;
         Some(
             std::path::PathBuf::from(appdata)
                 .join("gcloud")
@@ -339,7 +340,7 @@ fn application_default_credentials_path() -> Option<std::path::PathBuf> {
     }
     #[cfg(not(windows))]
     {
-        let home = std::env::var_os("HOME")?;
+        let home = var_os("HOME")?;
         Some(
             std::path::PathBuf::from(home)
                 .join(".config")
