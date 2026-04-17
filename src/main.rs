@@ -291,6 +291,7 @@ async fn wait_for_ssh(
 }
 
 fn credentials_available() -> bool {
+    #[cfg(not(windows))]
     if let Ok(path) = std::env::var("GOOGLE_APPLICATION_CREDENTIALS") {
         let path = std::path::Path::new(&path);
         if path.is_file() {
@@ -315,7 +316,7 @@ fn credentials_available() -> bool {
 fn application_default_credentials_path() -> Option<std::path::PathBuf> {
     #[cfg(windows)]
     {
-        let appdata = std::env::var_os("APPDATA")?;
+        let appdata = std::env::var_os("LOCALAPPDATA")?;
         Some(
             std::path::PathBuf::from(appdata)
                 .join("gcloud")
