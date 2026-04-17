@@ -2,10 +2,16 @@
 name = "gvm"
 version = "0.1.0"
 edition = "2021"
-
-[[bin]]
-name = "gvm"
-path = "src/main.rs"
+authors = ["Rodolfo Villaruz <rodolfo@yes.ph>"]
+description = "A small command-line tool for managing a single Google Compute Engine VM you use as a development or work machine."
+license = "MIT"
+repository = "https://github.com/rodolfovillaruz/gvm"
+readme = "README.md"
+keywords = ["cli", "tool"]
+categories = ["command-line-utilities"]
+exclude = [
+    ".dump/*"
+]
 
 [dependencies]
 tokio       = { version = "1", features = ["full"] }
