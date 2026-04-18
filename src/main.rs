@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let program = args.first().cloned().unwrap_or_else(|| "gvm".to_string());
 
     if args.len() < 2 {
-        eprintln!("Usage: {program} <start|status|ssh> [args...]");
+        eprintln!("Usage: {program} <start|status|ssh|tmux> [args...]");
         return Err("missing subcommand".into());
     }
 
@@ -92,6 +92,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(status.code().unwrap_or(1));
         }
 
+        "tmux" => {
+            let user = require_gvm_user()?;
+
+            // The first positional argument after "tmux" is the session name.
+            let session_name = rest.first().ok_or_else(|| {
+                eprintln!("\x1b[31mError:\x1b[0m Usage: {program} tmux <session-name>");
+                "missing session-name"
+            })?;
+
+            if status != "RUNNING" {
+                return Err(format!(
+                    "instance `{instance_name}` is not running (status: {status}). \
+                     Use `{program} start` to start it first."
+                )
+                .into());
+            }
+
+            let ip = ip
+                .ok_or_else(|| format!("instance `{instance_name}` has no reachable IP address"))?;
+
+            eprintln!(
+                "\x1b[32mConnecting\x1b[0m to {user}@{ip} \
+                 (instance `{instance_name}` in zone {zone}, tmux session `{session_name}`)"
+            );
+
+            // -t allocates a pseudo-TTY, which tmux requires.
+            let exit_status = Command::new("ssh")
+                .arg("-t")
+                .arg(format!("{user}@{ip}"))
+                .arg(format!("tmux new -As {session_name}"))
+                .status()?;
+
+            std::process::exit(exit_status.code().unwrap_or(1));
+        }
+
         "start" => {
             // Require GVM_USER up front so we don't wait for a start just to
             // discover we can't complete the ssh step.
@@ -143,7 +178,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         other => {
             eprintln!(
                 "Unknown subcommand `{other}`. \
-                 Usage: {program} <start|status|ssh> [args...]"
+                 Usage: {program} <start|status|ssh|tmux> [args...]"
             );
             Err(format!("unknown subcommand: {other}").into())
         }
