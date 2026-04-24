@@ -128,10 +128,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         "start" => {
-            // Require GVM_USER up front so we don't wait for a start just to
-            // discover we can't complete the ssh step.
-            let user = require_gvm_user()?;
-
             if status == "RUNNING" {
                 eprintln!("Instance `{instance_name}` is already RUNNING.");
             } else {
@@ -153,7 +149,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .and_then(|s| s.parse().ok())
                 .unwrap_or(180);
 
-            let ip = wait_for_ssh(
+            wait_for_ssh(
                 &client,
                 &project_id,
                 &zone,
@@ -162,17 +158,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             )
             .await?;
 
-            eprintln!(
-                "\x1b[32mConnecting\x1b[0m to {user}@{ip} \
-                 (instance `{instance_name}` in zone {zone})"
-            );
-
-            let status = Command::new("ssh")
-                .arg(format!("{user}@{ip}"))
-                .args(&rest)
-                .status()?;
-
-            std::process::exit(status.code().unwrap_or(1));
+            std::process::exit(0);
         }
 
         other => {
