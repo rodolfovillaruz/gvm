@@ -6,7 +6,7 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
-  contents: write   # needed to create GitHub Releases & upload assets
+  contents: write
 
 env:
   CARGO_TERM_COLOR: always
@@ -63,6 +63,12 @@ jobs:
             cross: false
             archive_suffix: linux-amd64-gnu
 
+          # Windows x86-64 (MSVC)
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            cross: false
+            archive_suffix: windows-amd64
+
     steps:
       - uses: actions/checkout@v6
 
@@ -107,25 +113,36 @@ jobs:
         run: cross build --release --locked --target ${{ matrix.target }}
 
       # ── Package ──────────────────────────────────────────────────────────────
+      # Uses bash on all platforms (Git Bash on Windows).
+      # Windows  → .zip  via 7z  (pre-installed on windows-latest)
+      # Linux    → .tar.gz via tar
       - name: Create release archive
         id: package
+        shell: bash
         run: |
           TAG="${{ github.ref_name }}"
-          ARCHIVE="${{ env.BINARY_NAME }}-${TAG}-${{ matrix.archive_suffix }}.tar.gz"
-          BINARY="target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}"
 
-          # Create staging directory with files
-          mkdir -p staging
-          cp "$BINARY" staging/
-          cp README.md staging/
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            BINARY="target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}.exe"
+            ARCHIVE="${{ env.BINARY_NAME }}-${TAG}-${{ matrix.archive_suffix }}.zip"
+            mkdir staging
+            cp "$BINARY" staging/
+            cp README.md staging/
+            7z a "$ARCHIVE" ./staging/*
+          else
+            BINARY="target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}"
+            ARCHIVE="${{ env.BINARY_NAME }}-${TAG}-${{ matrix.archive_suffix }}.tar.gz"
+            mkdir -p staging
+            cp "$BINARY" staging/
+            cp README.md staging/
+            tar -czf "$ARCHIVE" -C staging .
+          fi
 
-          # Create archive from staging
-          tar -czf "$ARCHIVE" -C staging .
           rm -rf staging
-
           echo "archive=${ARCHIVE}" >> "$GITHUB_OUTPUT"
 
       - name: Generate SHA-256 checksum
+        shell: bash
         run: |
           sha256sum "${{ steps.package.outputs.archive }}" \
             > "${{ steps.package.outputs.archive }}.sha256"
@@ -145,7 +162,7 @@ jobs:
     name: Publish to crates.io
     needs: build
     runs-on: ubuntu-latest
-    environment: crates-io   # optional: add a protected environment for approval
+    environment: crates-io
     steps:
       - uses: actions/checkout@v6
 
@@ -193,6 +210,13 @@ jobs:
           # ARM64 (static, musl)
           curl -fsSL https://github.com/${{ github.repository }}/releases/download/${TAG}/gvm-${TAG}-linux-arm64.tar.gz | tar -xz
           sudo mv gvm /usr/local/bin/
+          \`\`\`
+
+          #### Pre-built binary (Windows)
+          \`\`\`powershell
+          # x86-64
+          Invoke-WebRequest -Uri https://github.com/${{ github.repository }}/releases/download/${TAG}/gvm-${TAG}-windows-amd64.zip -OutFile gvm.zip
+          Expand-Archive gvm.zip -DestinationPath .
           \`\`\`
 
           ### Checksums
