@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "```src/main.rs\n...\n    match subcommand.as_str() {\n...\n        \"ssh\" => {\n            // GVM_USER is required for ssh.\n            let user = require_gvm_user()?;\n\n            let ip = ip\n                .ok_or_else(|| format!(\"instance `{instance_name}` has no reachable IP address\"))?;\n\n            eprintln!(\n                \"\\x1b[32mConnecting\\x1b[0m to {user}@{ip} \\\n                 (instance `{instance_name}` in zone {zone})\"\n            );\n\n            let status = Command::new(\"ssh\")\n                .arg(format!(\"{user}@{ip}\"))\n                .args(&rest)\n                .status()?;\n\n            std::process::exit(status.code().unwrap_or(1));\n        }\n...\n```\n\nHave the SSH not verify host key\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Add `-o StrictHostKeyChecking=no` and `-o UserKnownHostsFile=/dev/null` to skip host key verification:\n\n```rust\nlet status = Command::new(\"ssh\")\n    .arg(\"-o\").arg(\"StrictHostKeyChecking=no\")\n    .arg(\"-o\").arg(\"UserKnownHostsFile=/dev/null\")\n    .arg(format!(\"{user}@{ip}\"))\n    .args(&rest)\n    .status()?;\n```\n\n- `StrictHostKeyChecking=no` — skips the prompt when the host key is unknown or changed\n- `UserKnownHostsFile=/dev/null` — prevents the host key from being written to `~/.ssh/known_hosts`, which is useful here since cloud instance IPs are often reused and would otherwise cause future conflicts"
+  }
+]

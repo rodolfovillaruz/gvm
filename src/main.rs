@@ -85,6 +85,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
 
             let status = Command::new("ssh")
+                .arg("-o")
+                .arg("StrictHostKeyChecking=no")
+                .arg("-o")
+                .arg("UserKnownHostsFile=/dev/null")
                 .arg(format!("{user}@{ip}"))
                 .args(&rest)
                 .status()?;
