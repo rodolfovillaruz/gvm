@@ -72,6 +72,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(())
         }
 
+        "version" => {
+            println!("{}", env!("CARGO_PKG_VERSION"));
+            Ok(())
+        }
+
         "ssh" => {
             // GVM_USER is required for ssh.
             let user = require_gvm_user()?;
@@ -168,7 +173,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         other => {
             eprintln!(
                 "Unknown subcommand `{other}`. \
-                 Usage: {program} <start|status|ssh|tmux> [args...]"
+                 Usage: {program} <start|status|version|ssh|tmux> [args...]"
             );
             Err(format!("unknown subcommand: {other}").into())
         }
