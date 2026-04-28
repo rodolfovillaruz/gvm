@@ -63,6 +63,12 @@ jobs:
             cross: false
             archive_suffix: linux-amd64-gnu
 
+          # Android ARM64 (Bionic libc)
+          - target: aarch64-linux-android
+            os: ubuntu-latest
+            cross: true
+            archive_suffix: android-arm64
+
           # Windows x86-64 (MSVC)
           - target: x86_64-pc-windows-msvc
             os: windows-latest
@@ -210,6 +216,13 @@ jobs:
           # ARM64 (static, musl)
           curl -fsSL https://github.com/${{ github.repository }}/releases/download/${TAG}/gvm-${TAG}-linux-arm64.tar.gz | tar -xz
           sudo mv gvm /usr/local/bin/
+          \`\`\`
+
+          #### Pre-built binary (Android via Termux)
+          \`\`\`bash
+          # ARM64
+          curl -fsSL https://github.com/${{ github.repository }}/releases/download/${TAG}/gvm-${TAG}-android-arm64.tar.gz | tar -xz
+          mv gvm \$PREFIX/bin/
           \`\`\`
 
           #### Pre-built binary (Windows)
