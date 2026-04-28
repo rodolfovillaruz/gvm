@@ -30,6 +30,7 @@ colored     = "3"
 google-cloud-auth = "1.9.0"
 google-cloud-compute-v1 = "2.4.0"
 google-cloud-gax = "1.9.1"
+rustls-platform-verifier = "0.7.0"
 
 # ── TLS — non-Android platforms: reqwest with rustls ───────────────────────────
 # rustls-platform-verifier works correctly on Linux, macOS, and Windows because

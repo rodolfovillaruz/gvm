@@ -584,6 +584,7 @@ dependencies = [
  "google-cloud-compute-v1",
  "google-cloud-gax",
  "reqwest",
+ "rustls-platform-verifier",
  "serde",
  "serde_json",
  "thiserror",
