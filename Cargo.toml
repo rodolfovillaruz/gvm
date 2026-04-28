@@ -17,12 +17,12 @@ exclude = [
 name = "gvm"
 path = "src/main.rs"
 
+# ── Shared dependencies (all platforms) ────────────────────────────────────────
 [dependencies]
 tokio       = { version = "1", features = ["full"] }
 clap        = { version = "4", features = ["derive", "env"] }
 anyhow      = "1"
 thiserror   = "2"
-reqwest     = { version = "0.13", features = ["json", "rustls"] }
 serde       = { version = "1",    features = ["derive"] }
 serde_json  = "1"
 gcp_auth    = "0.12"
@@ -30,4 +30,17 @@ colored     = "3"
 google-cloud-auth = "1.9.0"
 google-cloud-compute-v1 = "2.4.0"
 google-cloud-gax = "1.9.1"
-rustls-platform-verifier = "0.7.0"
+
+# ── TLS — non-Android platforms: reqwest with rustls ───────────────────────────
+# rustls-platform-verifier works correctly on Linux, macOS, and Windows because
+# those targets never call into a JVM.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+reqwest                  = { version = "0.13", features = ["json", "rustls"] }
+
+# ── TLS — Android (Termux CLI binary) ─────────────────────────────────────────
+# rustls-platform-verifier requires a live Java VM and an Android Context object
+# obtained through JNI. A Termux process has neither; initialising the verifier
+# is impossible and every TLS handshake panics. Use native-tls (vendored OpenSSL
+# linked at compile time by cargo-ndk) instead.
+[target.'cfg(target_os = "android")'.dependencies]
+reqwest = { version = "0.13", default-features = false, features = ["json", "native-tls-vendored"] }
