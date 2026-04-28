@@ -574,7 +574,7 @@ dependencies = [
 
 [[package]]
 name = "gce-vm"
-version = "1.0.12"
+version = "1.0.13"
 dependencies = [
  "anyhow",
  "clap",
