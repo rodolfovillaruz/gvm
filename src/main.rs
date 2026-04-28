@@ -6,6 +6,10 @@ use std::time::{Duration, Instant};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize platform verifier on Android
+    #[cfg(target_os = "android")]
+    rustls_platform_verifier::initialize();
+
     let args: Vec<String> = std::env::args().collect();
     let program = args.first().cloned().unwrap_or_else(|| "gvm".to_string());
 
