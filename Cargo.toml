@@ -1,6 +1,6 @@
 [package]
 name = "gce-vm"
-version = "1.0.10"
+version = "1.0.11"
 edition = "2021"
 authors = ["Rodolfo Villaruz <rodolfo@yes.ph>"]
 description = "A small command-line tool for managing a single Google Compute Engine VM you use as a development or work machine."
