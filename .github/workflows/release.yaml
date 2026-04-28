@@ -48,31 +48,31 @@ jobs:
           # Static x86-64 (musl)
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            cross: false
+            method: cargo
             archive_suffix: linux-amd64
 
           # Static ARM64 (musl, cross-compiled)
           - target: aarch64-unknown-linux-musl
             os: ubuntu-latest
-            cross: true
+            method: cross
             archive_suffix: linux-arm64
 
           # GNU x86-64 (wider glibc compatibility)
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            cross: false
+            method: cargo
             archive_suffix: linux-amd64-gnu
 
-          # Android ARM64 (Bionic libc)
+          # Android ARM64 (Bionic libc, Termux)
           - target: aarch64-linux-android
             os: ubuntu-latest
-            cross: true
+            method: ndk
             archive_suffix: android-arm64
 
           # Windows x86-64 (MSVC)
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            cross: false
+            method: cargo
             archive_suffix: windows-amd64
 
     steps:
@@ -84,17 +84,28 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      # ── musl libc for native builds ──────────────────────────────────────────
+      # ── musl libc for native x86-64 builds ──────────────────────────────────
       - name: Install musl-tools (x86_64-musl)
         if: matrix.target == 'x86_64-unknown-linux-musl'
         run: |
           sudo apt-get update
           sudo apt-get install -y musl-tools ca-certificates
 
-      # ── Cross for cross-compiled targets ─────────────────────────────────────
+      # ── cross for musl cross-compiled targets ────────────────────────────────
       - name: Install cross
-        if: matrix.cross == true
+        if: matrix.method == 'cross'
         run: cargo install cross --locked
+
+      # ── NDK + cargo-ndk for Android ──────────────────────────────────────────
+      - name: Setup Android NDK
+        if: matrix.method == 'ndk'
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26d
+
+      - name: Install cargo-ndk
+        if: matrix.method == 'ndk'
+        run: cargo install cargo-ndk --locked
 
       # ── Cache ────────────────────────────────────────────────────────────────
       - name: Cache cargo registry & build artefacts
@@ -111,17 +122,18 @@ jobs:
 
       # ── Compile ──────────────────────────────────────────────────────────────
       - name: Build (cargo)
-        if: matrix.cross == false
+        if: matrix.method == 'cargo'
         run: cargo build --release --locked --target ${{ matrix.target }}
 
       - name: Build (cross)
-        if: matrix.cross == true
+        if: matrix.method == 'cross'
         run: cross build --release --locked --target ${{ matrix.target }}
 
+      - name: Build (cargo-ndk)
+        if: matrix.method == 'ndk'
+        run: cargo ndk -t arm64-v8a build --release --locked
+
       # ── Package ──────────────────────────────────────────────────────────────
-      # Uses bash on all platforms (Git Bash on Windows).
-      # Windows  → .zip  via 7z  (pre-installed on windows-latest)
-      # Linux    → .tar.gz via tar
       - name: Create release archive
         id: package
         shell: bash
